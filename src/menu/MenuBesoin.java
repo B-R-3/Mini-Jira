@@ -2,8 +2,8 @@ package src.menu;
 
 import src.model.Besoin;
 import java.util.Scanner;
-import java.util.Date;
 import src.Enum.EnumBesoin;
+import java.time.LocalDate;
 
 public class MenuBesoin {
 
@@ -32,9 +32,7 @@ public class MenuBesoin {
                     String libelle = scanner.nextLine(); 
                     System.out.println("(Ajouter un besoin) Entrez le statut du besoin : ");
                     EnumBesoin enumBesoin = EnumBesoin.valueOf(scanner.nextLine()); 
-                    Date dateCreation = new Date();
-                    Besoin besoin = new Besoin(0, libelle, enumBesoin, dateCreation, "", 0, false);
-                    besoin.ajouterBesoin();
+                    new Besoin().ajouterBesoinInteractif(libelle, enumBesoin);
                     // continuer = false;
                     break;
                 case 2:
@@ -44,8 +42,7 @@ public class MenuBesoin {
                     break;
                 case 3:
                     System.out.println("Afficher tous les besoins");
-                    Besoin besoin2 = new Besoin(0, "", EnumBesoin.A_ANALYSER, new Date(), "", 0, false);
-                    besoin2.afficherTousLesBesoins();
+                    new Besoin().afficherTousLesBesoins();
                     // continuer = false;
                     scanner.nextLine(); // Consomme le retour à la ligne restant
                     break;
