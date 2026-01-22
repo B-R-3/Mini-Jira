@@ -31,9 +31,8 @@ public class Menu {
                     break;
                 case 2:
                     System.out.println("Rapport de réunion");
-                    // MenuRapportDeReunion menuRapportDeReunion = new MenuRapportDeReunion();
-                    // menuRapportDeReunion.afficherMenuRapportDeReunion();
-                    // continuer = false;
+                    MenuReunion menuReunion = new MenuReunion();
+                    menuReunion.afficherMenuReunion();
                     break;
                 case 3:
                     System.out.println("Contraintes");

@@ -1,39 +1,40 @@
 package src.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class ActionItem {
     private String quoi;
-    private String quand;
-    private Date dueDate;
+    private LocalDate quand;
+    private String qui;
 
-    public ActionItem(String quoi, String quand, Date dueDate) {
+// Ajoute ce constructeur EXACTEMENT comme ceci :
+    public ActionItem(String quoi, String qui, LocalDate quand) {
         this.quoi = quoi;
+        this.qui = qui;
         this.quand = quand;
-        this.dueDate = dueDate;
     }
 
     public String getQuoi() {
         return quoi;
     }
 
-    public String getQuand() {
+    public LocalDate getQuand() {
         return quand;
     }
 
-    public Date getDueDate() {
-        return dueDate;
+    public String getQui() {
+        return qui;
     }
 
     public void setQuoi(String quoi) {
         this.quoi = quoi;
     }
 
-    public void setQuand(String quand) {
+    public void setQuand(LocalDate quand) {
         this.quand = quand;
     }
 
-    public void setDueDate(Date dueDate) {
-        this.dueDate = dueDate;
+    public void setQui(String qui) {
+        this.qui = qui;
     }
 }
