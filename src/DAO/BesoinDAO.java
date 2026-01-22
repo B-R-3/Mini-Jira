@@ -19,61 +19,131 @@ public class BesoinDAO {
     public List<Besoin> csvToArrayList() {
         List<Besoin> listeBesoins = new ArrayList<>();
 
-        // Utilisation du try-with-resources pour la fermeture automatique
         try (BufferedReader br = new BufferedReader(new FileReader(fichier))) {
             String line;
-            // On saute éventuellement l'en-tête si ton CSV en a un
-            // br.readLine();
-
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty())
                     continue;
 
                 String[] data = line.split(",");
 
-                // VERIFICATION DE SECURITE
-                // On vérifie si le premier élément est bien un chiffre
-                if (!data[0].trim().matches("\\d+")) {
-                    System.out.println("Ligne ignorée (en-tête ou format invalide) : " + line);
+                // --- SÉCURITÉ : Vérification de l'ID ---
+                if (!data[0].trim().matches("\\d+"))
                     continue;
-                }
-                // On crée l'objet
+
                 Besoin besoin = new Besoin();
-                besoin.setId(Integer.parseInt(data[0].trim()));
-                besoin.setLibelle(data[1].trim());
 
-                // Gestion sécurisée de l'Enum (attention à la casse !)
-                besoin.setEnumBesoin(EnumBesoin.valueOf(data[2].trim().toUpperCase()));
+                try {
+                    besoin.setId(Integer.parseInt(data[0].trim()));
+                    besoin.setLibelle(data[1].trim());
 
-                // Parsing de date moderne
-                besoin.setDateCreation(LocalDate.parse(data[3].trim(), formatter));
+                    // Enum sécurisé
+                    try {
+                        besoin.setEnumBesoin(EnumBesoin.valueOf(data[2].trim().toUpperCase()));
+                    } catch (Exception e) {
+                        besoin.setEnumBesoin(EnumBesoin.A_ANALYSER);
+                    }
 
-                besoin.setResponsable(data[4].trim());
-                besoin.setProgression(Integer.parseInt(data[5].trim()));
-                besoin.setEstTermine(Boolean.parseBoolean(data[6].trim()));
+                    // Dates sécurisées (grâce à ta méthode parseDate)
+                    besoin.setDateCreation(parseDate(data[3].trim()));
+                    besoin.setDatePrevueAnalyse(parseDate(data[4].trim()));
+                    besoin.setDateDebut(parseDate(data[5].trim()));
+                    besoin.setDateFin(parseDate(data[6].trim()));
 
-                listeBesoins.add(besoin);
+                    // Nombres sécurisés (grâce à ta méthode parseInteger)
+                    besoin.setCharge(parseInteger(data[7].trim()));
+                    besoin.setProgression(parseInteger(data[8].trim()));
+                    besoin.setEstTermine(Boolean.parseBoolean(data[9].trim()));
+                    besoin.setRaisonAnnulation(data[10].trim());
+
+                    listeBesoins.add(besoin);
+
+                } catch (Exception e) {
+                    System.err.println("Erreur de parsing sur la ligne : " + line + " -> " + e.getMessage());
+                }
             }
-        } catch (IOException | IllegalArgumentException e) {
-            System.err.println("Erreur de lecture ou de format : " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Erreur de lecture du fichier CSV : " + e.getMessage());
         }
         return listeBesoins;
     }
 
+    // Méthode utilitaire pour éviter le crash sur "null" ou vide
+    private LocalDate parseDate(String dateStr) {
+        if (dateStr == null || dateStr.equalsIgnoreCase("null") || dateStr.isEmpty()) {
+            return null; // Retourne un vrai null Java, pas le texte "null"
+        }
+        try {
+            return LocalDate.parse(dateStr, formatter);
+        } catch (Exception e) {
+            return null; // Si format date invalide, on met null au lieu de crasher
+        }
+    }
+
+    // Méthode utilitaire pour éviter le crash sur les nombres
+    private int parseInteger(String intStr) {
+        try {
+            return Integer.parseInt(intStr);
+        } catch (NumberFormatException e) {
+            return 0; // Retourne 0 par défaut si ce n'est pas un nombre
+        }
+    }
+
     public void save(Besoin b) {
-        // (ajouter à la fin du fichier)
+        // Mode "true" pour ajouter à la fin du fichier
         try (FileWriter fw = new FileWriter(fichier, true)) {
-            String ligne = String.format("%d,%s,%s,%s,%s,%d,%b%n",
+            // Il faut exactement 11 colonnes pour correspondre au parsing
+            String ligne = String.format("%d,%s,%s,%s,%s,%s,%s,%d,%d,%b,%s%n",
                     b.getId(),
                     b.getLibelle(),
                     b.getEnumBesoin(),
                     b.getDateCreation(),
-                    b.getResponsable(),
+                    b.getDatePrevueAnalyse(),
+                    b.getDateDebut(),
+                    b.getDateFin(),
+                    b.getCharge(),
                     b.getProgression(),
-                    b.isEstTermine());
+                    b.isEstTermine(),
+                    b.getRaisonAnnulation());
             fw.write(ligne);
         } catch (IOException e) {
             System.err.println("Erreur d'écriture : " + e.getMessage());
+        }
+    }
+
+    public boolean delete(int id) {
+        List<Besoin> liste = csvToArrayList();
+        // Utilise removeIf pour supprimer l'élément par ID
+        boolean removed = liste.removeIf(b -> b.getId() == id);
+
+        if (removed) {
+            // Méthode qui réécrit tout le fichier à partir de la nouvelle liste
+            saveAllBesoin(liste);
+        }
+        return removed;
+    }
+
+    public void saveAllBesoin(List<Besoin> liste) {
+        // Le false ici est important : il dit à Java d'effacer le fichier
+        // avant d'écrire la nouvelle liste.
+        try (FileWriter fw = new FileWriter(fichier, false)) {
+            for (Besoin b : liste) {
+                String ligne = String.format("%d,%s,%s,%s,%s,%s,%s,%d,%d,%b,%s%n",
+                        b.getId(),
+                        b.getLibelle(),
+                        b.getEnumBesoin(),
+                        b.getDateCreation(),
+                        b.getDatePrevueAnalyse(),
+                        b.getDateDebut(),
+                        b.getDateFin(),
+                        b.getCharge(),
+                        b.getProgression(),
+                        b.isEstTermine(),
+                        b.getRaisonAnnulation());
+                fw.write(ligne);
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la réécriture du fichier : " + e.getMessage());
         }
     }
 
@@ -84,14 +154,28 @@ public class BesoinDAO {
         if (liste.isEmpty()) {
             return 1;
         }
-
         int maxId = 0;
         for (Besoin b : liste) {
             if (b.getId() > maxId) {
                 maxId = b.getId();
             }
         }
-
         return maxId + 1;
+    }
+
+    public boolean updateStatus(int id, EnumBesoin enumBesoin) {
+        List<Besoin> liste = csvToArrayList();
+        boolean trouve = false;
+        for (Besoin besoin : liste) {
+            if (besoin.getId() == id) {
+                besoin.setEnumBesoin(enumBesoin);
+                trouve = true;
+                break;
+            }
+        }
+        if (trouve) {
+            saveAllBesoin(liste);
+        }
+        return trouve;
     }
 }
