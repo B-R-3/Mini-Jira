@@ -19,6 +19,8 @@ public class Besoin {
     private LocalDate dateDebut;
     private LocalDate dateFin;
     private int charge;
+    // Attributs pour le statut annulé
+    private String raisonAnnulation;
     // Attributs pour le statut terminé
     private boolean estTermine;
 
@@ -32,6 +34,7 @@ public class Besoin {
         this.charge = 0;
         this.estTermine = false;
         this.progression = 0;
+        this.raisonAnnulation = null;
     }
 
     public void afficherTousLesBesoins() {
@@ -44,15 +47,17 @@ public class Besoin {
         } else {
             // En-tête
             System.out.println(
-                    "┌──────┬────────────────────────────┬────────────────┬──────────────┬─────────────┬──────────────┬──────────────┬──────────────┬────────┬──────────┐");
+                    "┌──────┬────────────────────────────┬────────────────┬──────────────┬─────────────┬──────────────┬──────────────┬──────────────┬────────┬──────────┬──────────────┐");
             System.out.println(
-                    "│  ID  │          Libellé           │     Statut     │   Création   │ Progression │ Prévue Anal. │ Date Début   │  Date Fin    │ Charge │  Terminé │");
+                    "│  ID  │          Libellé           │     Statut     │   Création   │ Progression │ Prévue Anal. │ Date Début   │  Date Fin    │ Charge │  Terminé │ Raison Annulation │");
             System.out.println(
-                    "├──────┼────────────────────────────┼────────────────┼──────────────┼─────────────┼──────────────┼──────────────┼──────────────┼────────┼──────────┤");
+                    "├──────┼────────────────────────────┼────────────────┼──────────────┼─────────────┼──────────────┼──────────────┼──────────────┼────────┼──────────┼──────────────┤");
 
-            for (Besoin b : liste) {
+            for (int i = 0; i < liste.size(); i++) {
+                Besoin b = liste.get(i);
+
                 System.out.printf(
-                        "│ %-4d │ %-26s │ %-14s │ %-12s │    %3d%%     │ %-12s │ %-12s │ %-12s │ %6d │ %-8s │%n",
+                        "│ %-4d │ %-26s │ %-14s │ %-12s │    %3d%%     │ %-12s │ %-12s │ %-12s │ %6d │ %-8s │ %-16s │%n",
                         b.getId(),
                         b.getLibelle(),
                         b.getEnumBesoin(),
@@ -62,25 +67,36 @@ public class Besoin {
                         b.getDateDebut() != null ? b.getDateDebut().toString() : "N/A",
                         b.getDateFin() != null ? b.getDateFin().toString() : "N/A",
                         b.getCharge(),
-                        b.isEstTermine() ? "Oui" : "Non");
+                        b.isEstTermine() ? "Oui" : "Non",
+                        b.getRaisonAnnulation() != null ? b.getRaisonAnnulation() : "N/A");
+
+                // Si ce n'est pas le dernier élément, on affiche une ligne de séparation
+                if (i < liste.size() - 1) {
+                    System.out.println(
+                            "├──────┼────────────────────────────┼────────────────┼──────────────┼─────────────┼──────────────┼──────────────┼──────────────┼────────┼──────────┼──────────────┤");
+                }
             }
-            // Pied du tableau (déplacé APRES la boucle)
+
+            // Pied du tableau
             System.out.println(
-                    "└──────┴────────────────────────────┴────────────────┴──────────────┴─────────────┴──────────────┴──────────────┴──────────────┴────────┴──────────┘");
+                    "└──────┴────────────────────────────┴────────────────┴──────────────┴─────────────┴──────────────┴──────────────┴──────────────┴────────┴──────────┴──────────────┘");
         }
     }
 
-    // Methode pour le menu interactif
+    // Methodes pour le menu interactif
     public void ajouterBesoinInteractif(String libelle, LocalDate datePrevueAnalyse) {
-        // 1. Créer un nouvel objet Besoin
+        // Créer un nouvel objet Besoin
         Besoin nouveau = new Besoin();
-        nouveau.setId(new BesoinDAO().getNextId());
+        // on crée un nouvel objet BesoinDAO
+        BesoinDAO dao = new BesoinDAO();
+        // on récupère l'id suivant
+        nouveau.setId(dao.getNextId());
+        // on set les attributs de l'objet Besoin
         nouveau.setLibelle(libelle);
         nouveau.setEnumBesoin(EnumBesoin.A_ANALYSER);
         nouveau.setDateCreation(LocalDate.now());
         nouveau.setDatePrevueAnalyse(datePrevueAnalyse);
-        // 2. Demander au DAO de l'enregistrer
-        BesoinDAO dao = new BesoinDAO();
+        // Demander au DAO de l'enregistrer
         dao.save(nouveau);
 
         System.out.println("Besoin ajouté avec succès !");
@@ -92,16 +108,16 @@ public class Besoin {
         // Sécurité si l'utilisateur ne tape pas un nombre
         if (!scanner.hasNextInt()) {
             System.out.println("Erreur : Veuillez entrer un ID valide.");
-            scanner.next(); // Consomme l'entrée invalide
+            scanner.next(); // Consomme l'entrée (la touche ) invalide
             return;
         }
-
+        // on récupère l'id du besoin à supprimer
         int id = scanner.nextInt();
         scanner.nextLine(); // Nettoie le buffer après un nextInt()
 
+        // nouvel objet BesoinDAO
         BesoinDAO dao = new BesoinDAO();
-
-        // Idéalement, delete devrait retourner un boolean pour savoir si l'ID existait
+        // on supprime le besoin (on réécrit le fichier mis a jour )
         dao.delete(id);
         System.out.println("Besoin " + id + " supprimé avec succès !");
 
@@ -109,23 +125,81 @@ public class Besoin {
 
     // Méthode pour modifier le statut d'un besoin
     public void modifierStatutBesoin(Scanner scanner) {
-        System.out.print("Entrez l'ID du besoin à modifier : ");
+        BesoinDAO dao = new BesoinDAO();
+        // On charge la liste actuelle des besoins
+        List<Besoin> listeBesoins = dao.csvToArrayList();
 
-        // Sécurité si l'utilisateur ne tape pas un nombre
-        if (!scanner.hasNextInt()) {
-            System.out.println("Erreur : Veuillez entrer un ID valide.");
-            scanner.next(); // Consomme l'entrée invalide
+        System.out.print("Entrez l'ID du besoin à modifier : ");
+        // ... (ton code de vérification du nombre)
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        // On cherche le besoin correspondant dans la liste
+        Besoin besoinAModifier = null;
+        for (Besoin b : listeBesoins) {
+            if (b.getId() == id) {
+                besoinAModifier = b;
+                break;
+            }
+        }
+
+        if (besoinAModifier == null) {
+            System.out.println("Erreur : Aucun besoin trouvé avec l'ID " + id);
             return;
         }
-        System.out.print("Entrez le nouveau statut du besoin : ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Nettoie le buffer après un nextInt()
 
-        BesoinDAO dao = new BesoinDAO();
+        System.out.print("Entrez le nouveau statut (A_ANALYSER, ANALYSEE, ANNULEE, TERMINEE) : ");
+        String saisie = scanner.nextLine().toUpperCase().trim();
 
-        // Idéalement, delete devrait retourner un boolean pour savoir si l'ID existait
-        dao.updateStatus(id, EnumBesoin.valueOf(scanner.nextLine().toUpperCase()));
-        System.out.println("Statut du besoin " + id + " modifié avec succès !");
+        switch (saisie) {
+            case "ANALYSEE":
+                System.out.print("Date début (AAAA-MM-JJ) : ");
+                besoinAModifier.setDateDebut(LocalDate.parse(scanner.nextLine()));
+
+                System.out.print("Date fin (AAAA-MM-JJ) : ");
+                besoinAModifier.setDateFin(LocalDate.parse(scanner.nextLine()));
+
+                System.out.print("Charge (heures) : ");
+                besoinAModifier.setCharge(scanner.nextInt());
+                scanner.nextLine();
+
+                besoinAModifier.setEnumBesoin(EnumBesoin.ANALYSEE);
+                break;
+
+            case "ANNULEE":
+                System.out.print("Raison de l'annulation : ");
+                besoinAModifier.setRaisonAnnulation(scanner.nextLine());
+                besoinAModifier.setEnumBesoin(EnumBesoin.ANNULEE);
+                break;
+
+            case "TERMINEE":
+                String reponse;
+                do {
+                    System.out.print("Votre besoin est terminé ? (O/N) : ");
+                    reponse = scanner.nextLine().trim().toUpperCase(); // On lit UNE SEULE FOIS
+
+                    if (reponse.equals("O")) {
+                        besoinAModifier.setEstTermine(true);
+                        besoinAModifier.setEnumBesoin(EnumBesoin.TERMINEE); // N'oublie pas de changer le statut aussi !
+                    } else if (reponse.equals("N")) {
+                        besoinAModifier.setEstTermine(false);
+                        // Optionnel : décider si le statut reste TERMINEE ou autre
+                    } else {
+                        System.out.println("Saisie invalide, veuillez taper O ou N.");
+                    }
+                } while (!reponse.equals("O") && !reponse.equals("N"));
+
+                if (besoinAModifier.isEstTermine() == true) {
+                    System.out.println("Quelle est la progression du besoin ? (0-100)");
+                    besoinAModifier.setProgression(scanner.nextInt());
+                    scanner.nextLine();
+                } 
+                break;
+
+        }
+        // on enregistre le besoin modifié
+        dao.saveAllBesoin(listeBesoins);
+        System.out.println("Besoin mis à jour avec succès !");
     }
 
     // Méthodes getters et setters
@@ -207,5 +281,13 @@ public class Besoin {
 
     public void setCharge(int charge) {
         this.charge = charge;
+    }
+
+    public String getRaisonAnnulation() {
+        return raisonAnnulation;
+    }
+
+    public void setRaisonAnnulation(String raisonAnnulation) {
+        this.raisonAnnulation = raisonAnnulation;
     }
 }

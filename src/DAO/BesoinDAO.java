@@ -54,6 +54,7 @@ public class BesoinDAO {
                     besoin.setCharge(parseInteger(data[7].trim()));
                     besoin.setProgression(parseInteger(data[8].trim()));
                     besoin.setEstTermine(Boolean.parseBoolean(data[9].trim()));
+                    besoin.setRaisonAnnulation(data[10].trim());
 
                     listeBesoins.add(besoin);
 
@@ -91,8 +92,8 @@ public class BesoinDAO {
     public void save(Besoin b) {
         // Mode "true" pour ajouter à la fin du fichier
         try (FileWriter fw = new FileWriter(fichier, true)) {
-            // Il faut exactement 10 colonnes pour correspondre au parsing
-            String ligne = String.format("%d,%s,%s,%s,%s,%s,%s,%d,%d,%b%n",
+            // Il faut exactement 11 colonnes pour correspondre au parsing
+            String ligne = String.format("%d,%s,%s,%s,%s,%s,%s,%d,%d,%b,%s%n",
                     b.getId(),
                     b.getLibelle(),
                     b.getEnumBesoin(),
@@ -102,7 +103,8 @@ public class BesoinDAO {
                     b.getDateFin(),
                     b.getCharge(),
                     b.getProgression(),
-                    b.isEstTermine());
+                    b.isEstTermine(),
+                    b.getRaisonAnnulation());
             fw.write(ligne);
         } catch (IOException e) {
             System.err.println("Erreur d'écriture : " + e.getMessage());
@@ -121,12 +123,12 @@ public class BesoinDAO {
         return removed;
     }
 
-    private void saveAllBesoin(List<Besoin> liste) {
+    public void saveAllBesoin(List<Besoin> liste) {
         // Le false ici est important : il dit à Java d'effacer le fichier
         // avant d'écrire la nouvelle liste.
         try (FileWriter fw = new FileWriter(fichier, false)) {
             for (Besoin b : liste) {
-                String ligne = String.format("%d,%s,%s,%s,%s,%s,%s,%d,%d,%b%n",
+                String ligne = String.format("%d,%s,%s,%s,%s,%s,%s,%d,%d,%b,%s%n",
                         b.getId(),
                         b.getLibelle(),
                         b.getEnumBesoin(),
@@ -136,7 +138,8 @@ public class BesoinDAO {
                         b.getDateFin(),
                         b.getCharge(),
                         b.getProgression(),
-                        b.isEstTermine());
+                        b.isEstTermine(),
+                        b.getRaisonAnnulation());
                 fw.write(ligne);
             }
         } catch (IOException e) {
