@@ -4,6 +4,7 @@ import src.model.Besoin;
 import java.util.Scanner;
 import src.Enum.EnumBesoin;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 public class MenuBesoin {
 
@@ -28,11 +29,25 @@ public class MenuBesoin {
             // scanner.nextLine(); // Consommer le \n
             switch (choix) {
                 case 1:
-                    scanner.nextLine(); // Consomme le retour à la ligne restant
+                    scanner.nextLine(); 
                     System.out.println("(Ajouter un besoin) Entrez le libelle du besoin : ");
                     String libelle = scanner.nextLine(); 
-                    new Besoin().ajouterBesoinInteractif(libelle);
-                    // continuer = false;
+                    
+                    LocalDate datePrevueAnalyse = null;
+                    boolean dateValide = false;
+                    
+                    while (!dateValide) {
+                        System.out.println("(Ajouter un besoin) Entrez la date de prévision (AAAA-MM-JJ) : ");
+                        try {
+                            datePrevueAnalyse = LocalDate.parse(scanner.nextLine());
+                            dateValide = true;
+                        } catch (DateTimeParseException e) {
+                            System.out.println("Format invalide ! Veuillez respecter le format AAAA-MM-JJ.");
+                        }
+                    }
+                
+                    // On passe maintenant les DEUX informations
+                    new Besoin().ajouterBesoinInteractif(libelle, datePrevueAnalyse);
                     break;
                 case 2:
                     System.out.println("Afficher tous les besoins");

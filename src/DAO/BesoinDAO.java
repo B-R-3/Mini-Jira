@@ -27,7 +27,7 @@ public class BesoinDAO {
 
                 String[] data = line.split(",");
 
-                // Verification de l'ID
+                // --- SÉCURITÉ : Vérification de l'ID ---
                 if (!data[0].trim().matches("\\d+"))
                     continue;
 

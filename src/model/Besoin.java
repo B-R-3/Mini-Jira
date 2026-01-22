@@ -71,13 +71,14 @@ public class Besoin {
     }
 
     // Methode pour le menu interactif
-    public void ajouterBesoinInteractif(String libelle) {
+    public void ajouterBesoinInteractif(String libelle, LocalDate datePrevueAnalyse) {
         // 1. Créer un nouvel objet Besoin
         Besoin nouveau = new Besoin();
         nouveau.setId(new BesoinDAO().getNextId());
         nouveau.setLibelle(libelle);
         nouveau.setEnumBesoin(EnumBesoin.A_ANALYSER);
         nouveau.setDateCreation(LocalDate.now());
+        nouveau.setDatePrevueAnalyse(datePrevueAnalyse);
         // 2. Demander au DAO de l'enregistrer
         BesoinDAO dao = new BesoinDAO();
         dao.save(nouveau);
