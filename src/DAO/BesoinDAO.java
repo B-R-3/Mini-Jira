@@ -89,6 +89,7 @@ public class BesoinDAO {
         }
     }
 
+    // méthode pour enregistrer un objet Besoin dans le csv
     public void save(Besoin b) {
         // Mode "true" pour ajouter à la fin du fichier
         try (FileWriter fw = new FileWriter(fichier, true)) {
@@ -123,6 +124,7 @@ public class BesoinDAO {
         return removed;
     }
 
+    // méthode pour enregistrer une liste d'objets Besoin dans le csv
     public void saveAllBesoin(List<Besoin> liste) {
         // Le false ici est important : il dit à Java d'effacer le fichier
         // avant d'écrire la nouvelle liste.
@@ -147,6 +149,7 @@ public class BesoinDAO {
         }
     }
 
+    // méthode pour récupérer l'id suivant
     public int getNextId() {
         List<Besoin> liste = csvToArrayList(); // On récupère la liste actuelle
 
