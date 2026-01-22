@@ -27,7 +27,6 @@ public class Menu {
                     scanner.nextLine(); // Consomme le retour à la ligne restant
                     MenuBesoin menuBesoin = new MenuBesoin();
                     menuBesoin.afficherMenuBesoin();
-                    System.out.println("Besoin");
                     // continuer = false;
                     break;
                 case 2:
@@ -38,6 +37,8 @@ public class Menu {
                     break;
                 case 3:
                     System.out.println("Contraintes");
+                    MenuContrainte menuContrainte = new MenuContrainte();
+                    menuContrainte.afficherMenuContrainte();
                     break;
                 case 4:
                     System.out.println("Quitter");

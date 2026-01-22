@@ -2,64 +2,85 @@ package src.model;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import src.Enum.EnumContrainte;
 
 
 public class Contrainte {
-
+    private int id;
     private String libelle;
     private EnumContrainte enumContrainte;
-    private Date dateCreation;
+    private LocalDate dateCreation;
+    private String raisonAnnulation;
+    private LocalDate dateVerification;
+    private String responsable;
+    private boolean estVerifie;
+ 
 
 
 
-    public Contrainte(String libelle, EnumContrainte enumContrainte, Date dateCreation) {
+    public Contrainte() {
+        this.id = id;
         this.libelle = libelle;
-        this.enumContrainte = enumContrainte;
-        this.dateCreation = dateCreation;
+        this.dateCreation = LocalDate.now();
+        this.enumContrainte = EnumContrainte.A_PRENDRE_EN_COMPTE;
+        this.raisonAnnulation = null;
+        this.dateVerification = null;
+        this.responsable = null;
+        this.estVerifie = false;
     }
 
     public void ajouterContrainte() {
-        String fichier = "src/csv/contraintes.csv";
-        try {
-            FileWriter writer = new FileWriter(fichier, true);
-            writer.write(libelle + "," + enumContrainte + "," + dateCreation + ";" + "\n");
-            writer.close();
-        } catch (IOException e) {
-            System.out.println("Erreur lors de l'ajout de la contrainte");
-        }
+
     }
     public void afficherTousLesContraintes() {
-        String fichier = "src/csv/contraintes.csv";
-        try {
-            String contenu = new String(Files.readAllBytes(Paths.get("src/csv/contraintes.csv")));
-            String[] lignes = contenu.split(";");
-            for (String ligne : lignes) {
-                System.out.println(ligne);
-            }
-        } catch (IOException e) {
-            System.out.println("Erreur lors de l'affichage des contraintes");
-        }
+       
     }
     public void supprimerContrainte() {
 
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
     //getters et setters
+    public int getId() {
+        return id;
+    }
     public String getLibelle() {
         return libelle;
     }
     public EnumContrainte getEnumContrainte() {
         return enumContrainte;
     }
-    public Date getDateCreation() {
+    public LocalDate getDateCreation() {
         return dateCreation;
+    }
+    public String getRaisonAnnulation() {
+        return raisonAnnulation;
+    }
+    public LocalDate getDateVerification() {
+        return dateVerification;
+    }
+    public String getResponsable() {
+        return responsable;
+    }
+    public boolean isEstVerifie() {
+        return estVerifie;
+    }
+    public void setId(int id) {
+        this.id = id;
     }
     public void setLibelle(String libelle) {
         this.libelle = libelle;
@@ -67,8 +88,20 @@ public class Contrainte {
     public void setEnumContrainte(EnumContrainte enumContrainte) {
         this.enumContrainte = enumContrainte;
     }
-    public void setDateCreation(Date dateCreation) {
+    public void setDateCreation(LocalDate dateCreation) {
         this.dateCreation = dateCreation;
+    }
+    public void setRaisonAnnulation(String raisonAnnulation) {
+        this.raisonAnnulation = raisonAnnulation;
+    }
+    public void setDateVerification(LocalDate dateVerification) {
+        this.dateVerification = dateVerification;
+    }
+    public void setResponsable(String responsable) {
+        this.responsable = responsable;
+    }
+    public void setEstVerifie(boolean estVerifie) {
+        this.estVerifie = estVerifie;
     }
  
 

@@ -49,7 +49,6 @@ public class MenuBesoin {
                 case 4:
                     System.out.println("Retour au menu principal");
                     continuer = false;
-
                     break;
                 case 5:
                     System.out.println("Quitter");

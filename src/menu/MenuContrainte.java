@@ -2,7 +2,6 @@ package src.menu;
 
 import src.model.Contrainte;
 import java.util.Scanner;
-import java.util.Date;
 import src.Enum.EnumContrainte;
 
 public class MenuContrainte {
@@ -31,33 +30,24 @@ public class MenuContrainte {
                     System.out.println("(Ajouter une contrainte) Entrez le libelle de la contrainte : ");
                     String libelle = scanner.nextLine(); 
                     System.out.println("(Ajouter une contrainte) Entrez le statut de la contrainte : ");
-                    EnumContrainte enumContrainte = EnumContrainte.valueOf(scanner.nextLine()); 
-                    Date dateCreation = new Date();
-                    Contrainte contrainte = new Contrainte(libelle, enumContrainte, dateCreation);
-                    contrainte.ajouterContrainte();
-                    // continuer = false;
-                    
                     break;
                 case 2:
                     System.out.println("Supprimer une contrainte");
                     // supprimerContrainte();
-                    continuer = false;
+
                     break;
                 case 3:
                     System.out.println("Afficher toutes les contraintes");
-                    Contrainte contrainte2 = new Contrainte("", EnumContrainte.A_PRENDRE_EN_COMPTE, new Date());
-                    contrainte2.afficherTousLesContraintes();   
-                    // continuer = false;
+                
                     scanner.nextLine(); // Consomme le retour à la ligne restant
                     break;
                 case 4:
                     System.out.println("Retour au menu principal");
                     continuer = false;
-
                     break;
                 case 5:
                     System.out.println("Quitter");
-                    scanner.close();
+                    scanner.close();               
                     continuer = false;
                     break;
             }
