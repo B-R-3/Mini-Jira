@@ -24,16 +24,39 @@ public class Reunion {
         this.cheminFichierTxt = cheminFichierTxt;
     }
 
+    public void afficherToutesLesReunions() {
+        System.out.println("=== LISTE DES REUNIONS ===");
+        ReunionDAO dao = new ReunionDAO();
+        List<Reunion> liste = dao.csvToArrayList();
+
+        for (int i = 0; i < liste.size(); i++) {
+            Reunion r = liste.get(i);
+
+            System.out.printf(
+                    "│ %-4d │ %-26s │ %-14s │ %-12s │ %-12s │ %-12s │%n",
+                    r.getId(),
+                    r.getNomAuteur(),
+                    r.getParticipants(),
+                    r.getDateReunion() != null ? r.getDateReunion().toString() : "N/A",
+                    r.getActionItems().toString());
+
+            // Si ce n'est pas le dernier élément, on affiche une ligne de séparation
+            if (i < liste.size() - 1) {
+                System.out.println(
+                        "├──────┼────────────────────────────┼────────────────┼──────────────┼─────────────┼──────────────┼──────────────┼──────────────┼────────┼──────────┼──────────────┤");
+            }
+        }
+
+        // Pied du tableau
+        System.out.println(
+                "└──────┴────────────────────────────┴────────────────┴──────────────┴─────────────┴──────────────┴──────────────┴──────────────┴────────┴──────────┴──────────────┘");
+    }
+
     public void creerReunionInteractif(Scanner scanner) {
         ReunionDAO dao = new ReunionDAO();
-
+        this.id = dao.getNextId();
         // Initialisation de la liste pour éviter les erreurs de pointeur null
         this.actionItems = new ArrayList<>();
-
-        System.out.print("ID de la réunion : ");
-        this.id = scanner.nextInt();
-        scanner.nextLine(); // Nettoyage du buffer
-
         System.out.print("Nom de l'auteur : ");
         this.NomAuteur = scanner.nextLine();
 
@@ -42,7 +65,7 @@ public class Reunion {
 
         // Date automatique au jour J
         this.dateReunion = LocalDate.now();
-
+        boolean success = false;
         String reponse;
         do {
             System.out.println("\n--- Ajout d'une action (Tableau Quoi/Qui/Quand) ---");
@@ -63,8 +86,15 @@ public class Reunion {
         // ÉTAPE FINALE : On génère le texte et on l'enregistre via le DAO
         String compteRendu = preparerTexteRapport();
         dao.saveCompteRendu(this.id, compteRendu);
+        success = true;
 
         System.out.println("\nFélicitations ! Le fichier 'reunion_" + this.id + ".txt' a été généré.");
+        if(success) {
+            dao.save(this);
+        }
+        else {
+            System.out.println("Erreur lors de l'enregistrement de la réunion.");
+        }
     }
 
     // Cette méthode crée la mise en page du fichier .txt

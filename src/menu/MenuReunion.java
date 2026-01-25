@@ -32,12 +32,11 @@ public class MenuReunion {
                         nouvelleReunion.creerReunionInteractif(scanner);
                         break;
                 case 2:
-
+                    Reunion reunion = new Reunion();
+                    reunion.afficherToutesLesReunions();
                     break;
-                   
                 case 3:
 
-                    // continuer = false;
                     break;
                 case 4:
 
